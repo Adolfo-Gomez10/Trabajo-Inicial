@@ -1,29 +1,61 @@
-import { ModuloOxigeno } from '../src/ModuloOxigeno';
+import { AutobusBase } from '../src/AutoBase';
+import { AutobusPasajeros } from '../src/AutoPasajeros';
 
-describe('Pruebas del Sistema de la Estación Espacial', () => {
+class AutobusEscolar extends AutobusBase { // herencia: AutobusEscolar es un tipo específico de AutobusBase
+	constructor(matricula: string, public nivelCombustible: number) {
+		super(matricula, 8);
+	}
 
-    test('Debe crear un módulo con 100% de integridad al inicio', () => {
-        const oxigeno = new ModuloOxigeno("Soporte Vital Alfa", 50);
-        expect(oxigeno.getIntegridad()).toBe(100);
-    });
+	estaOperativo(): boolean {
+		return this.getEstadoMecanico() > 50 && this.nivelCombustible >= 15;
+	}
+}
 
-    test('El módulo debe seguir funcionando si tiene suficiente integridad y reserva', () => {
-        const oxigeno = new ModuloOxigeno("Soporte Vital Beta", 50);
-        oxigeno.recibirImpacto(30); // Baja a 70%
-        expect(oxigeno.funciona()).toBe(true);
-    });
+test('encapsulamiento: el estado mecanico cambia con metodos', () => {
+	const bus = new AutobusPasajeros('AA111BB', 40);
+	const base = bus as unknown as AutobusBase;
 
-    test('Polimorfismo: El módulo de oxígeno debe fallar si la integridad es muy baja (<= 20)', () => {
-        const oxigeno = new ModuloOxigeno("Soporte Vital Gamma", 100);
-        oxigeno.recibirImpacto(85); // Baja a 15%
-        
-        // Según nuestra lógica en ModuloOxigeno.ts, debería devolver false
-        expect(oxigeno.funciona()).toBe(false);
-    });
+	expect(base.getEstadoMecanico()).toBe(100);
 
-    test('El módulo debe fallar si se queda sin reserva de oxígeno', () => {
-        const oxigeno = new ModuloOxigeno("Soporte Vital Delta", 0); // Sin reserva
-        expect(oxigeno.funciona()).toBe(false);
-    });
+	base.sufrirDesgaste(30);
+	expect(base.getEstadoMecanico()).toBe(70);
 
+	base.sufrirDesgaste(1000);
+	expect(base.getEstadoMecanico()).toBe(0);
+});
+
+test('herencia: AutobusPasajeros viene de AutobusBase', () => {
+	const bus = new AutobusPasajeros('BB222CC', 30);
+
+	expect(bus).toBeInstanceOf(AutobusPasajeros);
+	expect(bus).toBeInstanceOf(AutobusBase);
+});
+
+test('abstraccion: cada clase define estaOperativo', () => {
+	const bus1 = new AutobusPasajeros('CC333DD', 10);
+	const bus2 = new AutobusEscolar('DD444EE', 20);
+
+	expect(typeof bus1.estaOperativo).toBe('function');
+	expect(typeof bus2.estaOperativo).toBe('function');
+});
+
+test('polimorfismo: mismo metodo, distinto resultado segun la clase', () => {
+	const flota = [
+		new AutobusPasajeros('EE555FF', 1),
+		new AutobusEscolar('FF666GG', 20)
+	];
+
+	const resultados = flota.map((bus) => bus.estaOperativo());
+
+	expect(resultados[0]).toBe(true);
+	expect(resultados[1]).toBe(true);
+
+	const busPasajeros = flota[0] as unknown as AutobusBase;
+	const busEscolar = flota[1] as unknown as AutobusBase;
+
+	busPasajeros.sufrirDesgaste(90);
+	busEscolar.sufrirDesgaste(60);
+
+	expect((flota[0] as AutobusPasajeros).estaOperativo()).toBe(false);
+	expect((flota[1] as AutobusEscolar).estaOperativo()).toBe(false);
 });
