@@ -1,24 +1,25 @@
 import { AutobusBase } from '../src/AutoBase';
 import { AutobusPasajeros } from '../src/AutoPasajeros';
+import { IAutobus } from '../src/IAutobus';
 
-class AutobusEscolar extends AutobusBase { // herencia: AutobusEscolar es un tipo específico de AutobusBase
+class AutobusEscolar extends AutobusBase { // herencia: AutobusEscolar es un tipo especifico de AutobusBase
 	constructor(matricula: string, public nivelCombustible: number) {
 		super(matricula, 8);
 	}
 
-	estaOperativo(): boolean {
+	estaOperativo(): boolean { 
 		return this.getEstadoMecanico() > 50 && this.nivelCombustible >= 15;
 	}
 }
 
 test('encapsulamiento: el estado mecanico cambia con metodos', () => {
 	const bus = new AutobusPasajeros('AA111BB', 40);
-	const base = bus as unknown as AutobusBase;
+	const base: AutobusBase = bus;
 
-	expect(base.getEstadoMecanico()).toBe(100);
+	expect(base.getEstadoMecanico()).toBe(100);// El estado mecanico inicial es 100
 
-	base.sufrirDesgaste(30);
-	expect(base.getEstadoMecanico()).toBe(70);
+	base.sufrirDesgaste(30); //el metodo sufrirDesgaste reduce el estado mecanico en 30
+	expect(base.getEstadoMecanico()).toBe(70); //verifico con get que el estado se redujo a 70
 
 	base.sufrirDesgaste(1000);
 	expect(base.getEstadoMecanico()).toBe(0);
@@ -27,35 +28,51 @@ test('encapsulamiento: el estado mecanico cambia con metodos', () => {
 test('herencia: AutobusPasajeros viene de AutobusBase', () => {
 	const bus = new AutobusPasajeros('BB222CC', 30);
 
-	expect(bus).toBeInstanceOf(AutobusPasajeros);
-	expect(bus).toBeInstanceOf(AutobusBase);
+	expect(bus).toBeInstanceOf(AutobusBase); //verifico con instanceOf que bus es una instancia de AutobusBase
 });
 
 test('abstraccion: cada clase define estaOperativo', () => {
-	const bus1 = new AutobusPasajeros('CC333DD', 10);
+	const bus1 = new AutobusPasajeros('CC333DD', 10); 
 	const bus2 = new AutobusEscolar('DD444EE', 20);
 
-	expect(typeof bus1.estaOperativo).toBe('function');
-	expect(typeof bus2.estaOperativo).toBe('function');
+	expect(bus1.estaOperativo()).toBe(true); // Para AutobusPasajeros, esta operativo si el estado mecanico es > 20 y combustible > 0
+	expect(bus2.estaOperativo()).toBe(true); // Para AutobusEscolar, esta operativo si el estado mecanico es > 50 y combustible >= 15
+
+	bus1.sufrirDesgaste(60);
+	bus2.sufrirDesgaste(60);
+
+	expect(bus1.estaOperativo()).toBe(true); // Aunque el estado mecanico es 40, sigue operativo porque el combustible es > 0
+	expect(bus2.estaOperativo()).toBe(false); // El estado mecanico es < 50, por lo que no esta operativo aunque el combustible sea suficiente
 });
 
 test('polimorfismo: mismo metodo, distinto resultado segun la clase', () => {
-	const flota = [
+	const contarOperativos = (buses: AutobusBase[]): number => { // El mismo metodo se comporta diferente segun el tipo de autobus
+		return buses.filter((bus) => bus.estaOperativo()).length; //con filter y length cuento cuantos autobuses estan operativos en la flota
+	};
+
+	const flota: AutobusBase[] = [  //inicializo una flota con diferentes tipos de autobuses
 		new AutobusPasajeros('EE555FF', 1),
 		new AutobusEscolar('FF666GG', 20)
 	];
 
-	const resultados = flota.map((bus) => bus.estaOperativo());
+	expect(contarOperativos(flota)).toBe(2); //verifico que ambos autobuses estan operativos al inicio
 
-	expect(resultados[0]).toBe(true);
-	expect(resultados[1]).toBe(true);
+	flota[0].sufrirDesgaste(90); // El AutobusPasajeros ya no esta operativo porque el estado mecanico es < 20
+	flota[1].sufrirDesgaste(60); // El AutobusEscolar ya no esta operativo porque el estado mecanico es < 50, aunque el combustible todavia es suficiente
 
-	const busPasajeros = flota[0] as unknown as AutobusBase;
-	const busEscolar = flota[1] as unknown as AutobusBase;
+	expect(contarOperativos(flota)).toBe(0); //verifico que ninguno de los autobuses esta operativo despues del desgaste, demostrando que el mismo metodo estaOperativo se comporta diferente segun la clase del autobus
+});
 
-	busPasajeros.sufrirDesgaste(90);
-	busEscolar.sufrirDesgaste(60);
+test('interfaz: AutobusBase cumple el contrato IAutobus', () => {
+	const validarContrato = (bus: IAutobus): boolean => { 
+		return typeof bus.matricula === 'string' 
+			&& typeof bus.consumoCombustible === 'number' 
+			&& typeof bus.estaOperativo === 'function'; 
+	};
 
-	expect((flota[0] as AutobusPasajeros).estaOperativo()).toBe(false);
-	expect((flota[1] as AutobusEscolar).estaOperativo()).toBe(false);
+	const baseComoPasajeros: AutobusBase = new AutobusPasajeros('II999JJ', 10); // Puedo tratar un AutobusPasajeros como un AutobusBase porque hereda de el, y también cumple el contrato de IAutobus
+	const baseComoEscolar: AutobusBase = new AutobusEscolar('JJ000KK', 20); // Puedo tratar un AutobusEscolar como un AutobusBase porque hereda de el, y también cumple el contrato de IAutobus
+
+	expect(validarContrato(baseComoPasajeros)).toBe(true); //verifico que el AutobusPasajeros cumple el contrato de IAutobus
+	expect(validarContrato(baseComoEscolar)).toBe(true); //verifico que el AutobusEscolar cumple el contrato de IAutobus
 });

@@ -18,6 +18,6 @@ export abstract class AutobusBase implements IAutobus {
         return this.estadoMecanico; //devuelve el estado mecánico actual del autobús
     }
 
-    // Método abstracto: el "cómo" opera depende del tipo de autobús
+    // Método abstracto: cada subclase define su propio comportamiento (polimorfismo)
     abstract estaOperativo(): boolean;
 }
