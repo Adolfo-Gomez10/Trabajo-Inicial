@@ -7,4 +7,6 @@ Proyecto inicial para practicar los pilares de la Programación Orientada a Obje
 * **Encapsulamiento:** Propiedades protegidas (`private`, `readonly`) y métodos de acceso como `getEstadoMecanico()` y `sufrirDesgaste()`.
 * **Herencia:** Especialización de autobuses (Ej: `AutobusPasajeros`).
 * **Polimorfismo:** Implementación específica del método `estaOperativo()`.
+* **Sobrecarga de Métodos:** Sobrecarga del metodo `SufrirDesgaste`.
 * **Testing:** Pruebas unitarias con Jest.
+

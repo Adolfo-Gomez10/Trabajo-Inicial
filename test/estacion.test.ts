@@ -76,3 +76,16 @@ test('interfaz: AutobusBase cumple el contrato IAutobus', () => {
 	expect(validarContrato(baseComoPasajeros)).toBe(true); //verifico que el AutobusPasajeros cumple el contrato de IAutobus
 	expect(validarContrato(baseComoEscolar)).toBe(true); //verifico que el AutobusEscolar cumple el contrato de IAutobus
 });
+
+test('sobrecarga: sufrirDesgaste acepta daño leve, normal y fuerte', () => {
+	const bus = new AutobusPasajeros('LL111MM', 30);
+
+	bus.sufrirDesgaste('leve');
+	expect(bus.getEstadoMecanico()).toBe(90);
+
+	bus.sufrirDesgaste('normal');
+	expect(bus.getEstadoMecanico()).toBe(75);
+
+	bus.sufrirDesgaste('fuerte');
+	expect(bus.getEstadoMecanico()).toBe(35);
+});
