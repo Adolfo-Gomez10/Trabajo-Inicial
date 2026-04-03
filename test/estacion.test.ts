@@ -1,5 +1,6 @@
 import { AutobusBase } from '../src/AutoBase';
 import { AutobusPasajeros } from '../src/AutoPasajeros';
+import { Estacion } from '../src/Estacion';
 import { IAutobus } from '../src/IAutobus';
 
 class AutobusEscolar extends AutobusBase { // herencia: AutobusEscolar es un tipo especifico de AutobusBase
@@ -88,4 +89,22 @@ test('sobrecarga: sufrirDesgaste acepta daño leve, normal y fuerte', () => {
 
 	bus.sufrirDesgaste('fuerte');
 	expect(bus.getEstadoMecanico()).toBe(35);
+});
+
+test('filtro: mostrar solo buses operativos', () => {
+	const estacion = new Estacion();
+	const busPasajeros = new AutobusPasajeros('MM222NN', 10);
+	const busEscolarOperativo = new AutobusEscolar('NN333OO', 25);
+	const busEscolarNoOperativo = new AutobusEscolar('OO444PP', 10);
+
+	estacion.agregarBus(busPasajeros);
+	estacion.agregarBus(busEscolarOperativo);
+	estacion.agregarBus(busEscolarNoOperativo);
+
+	const operativos = estacion.mostrarBusesOperativos();// El metodo mostrarBusesOperativos devuelve solo los buses que estan operativos segun su propia logica de estaOperativo
+
+	expect(operativos).toHaveLength(2); //verifico que solo hay 2 buses operativos en la estacion
+	expect(operativos).toContain(busPasajeros); //buspasajeros esta oprativo
+	expect(operativos).toContain(busEscolarOperativo); //busEscolarOperativo esta operativo
+	expect(operativos).not.toContain(busEscolarNoOperativo); //busEscolarNoOperativo no esta operativo porque el estado mecanico es < 50 y el combustible es < 15, por lo que no debe aparecer en la lista de operativos
 });
