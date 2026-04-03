@@ -71,8 +71,8 @@ test('interfaz: AutobusBase cumple el contrato IAutobus', () => {
 			&& typeof bus.estaOperativo === 'function'; 
 	};
 
-	const baseComoPasajeros: AutobusBase = new AutobusPasajeros('II999JJ', 10); // Puedo tratar un AutobusPasajeros como un AutobusBase porque hereda de el, y también cumple el contrato de IAutobus
-	const baseComoEscolar: AutobusBase = new AutobusEscolar('JJ000KK', 20); // Puedo tratar un AutobusEscolar como un AutobusBase porque hereda de el, y también cumple el contrato de IAutobus
+	const baseComoPasajeros: AutobusBase = new AutobusPasajeros('II999JJ', 10); // Puedo tratar un AutobusPasajeros como un AutobusBase porque hereda de el, y tambien cumple el contrato de IAutobus
+	const baseComoEscolar: AutobusBase = new AutobusEscolar('JJ000KK', 20); // Puedo tratar un AutobusEscolar como un AutobusBase porque hereda de el, y tambien cumple el contrato de IAutobus
 
 	expect(validarContrato(baseComoPasajeros)).toBe(true); //verifico que el AutobusPasajeros cumple el contrato de IAutobus
 	expect(validarContrato(baseComoEscolar)).toBe(true); //verifico que el AutobusEscolar cumple el contrato de IAutobus
